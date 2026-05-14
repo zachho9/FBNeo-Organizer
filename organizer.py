@@ -84,6 +84,43 @@ def load_allowlist(path: Path) -> list[str]:
     return names
 
 
+def parse_allowlist(xml_content: str, parent_names: set[str]) -> tuple[set[str], dict[str, str], set[str]]:
+    """Parse FBNeo -listxml to build keep-set from parent names and their clones.
+
+    Returns:
+        keep_names: ROM stems to keep (parents + clones + BIOS deps)
+        game_to_label: game name -> "parent" or "clone"
+        bios_names: BIOS ROM names added via romof dependencies
+    """
+    root = ET.fromstring(xml_content)
+    game_to_label: dict[str, str] = {}
+    romof_deps: set[str] = set()
+    matched_parents: set[str] = set()
+
+    for game in root.findall("game"):
+        name = game.get("name", "")
+        cloneof = game.get("cloneof", "")
+        romof = game.get("romof", "")
+
+        if name in parent_names:
+            game_to_label[name] = "parent"
+            matched_parents.add(name)
+            if romof:
+                romof_deps.add(romof)
+        elif cloneof in parent_names:
+            game_to_label[name] = "clone"
+            if romof:
+                romof_deps.add(romof)
+
+    for name in sorted(parent_names - matched_parents):
+        print(f"  [!] Warning: '{name}' not found in FBNeo database")
+
+    bios_names = romof_deps - game_to_label.keys()
+    keep_names = set(game_to_label.keys()) | romof_deps
+
+    return keep_names, game_to_label, bios_names
+
+
 def organize(
     arcade_path: Path,
     keep_set: set[str],
