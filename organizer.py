@@ -53,3 +53,16 @@ def parse_listxml(xml_content: str) -> tuple[set[str], dict[str, str], set[str]]
     keep_names = set(game_to_platform.keys()) | romof_deps
 
     return keep_names, game_to_platform, bios_names
+
+
+def load_config(config_path: Path) -> dict:
+    """Load config from TOML file. Returns empty dict if file doesn't exist."""
+    if not config_path.exists():
+        return {}
+    with config_path.open("rb") as f:
+        return tomllib.load(f)
+
+
+def save_config(config_path: Path, fbneo_dir: str) -> None:
+    """Write FBNeo directory path to config file."""
+    config_path.write_text(f"fbneo_dir = '{fbneo_dir}'\n", encoding="utf-8")
