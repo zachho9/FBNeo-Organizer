@@ -21,6 +21,6 @@ midway                                          22 parent games   e.g. 2 On 2 Op
 psikyo                                          22 parent games   e.g. Battle K-Road (btlkroad)
 cps3                                             6 parent games   e.g. JoJo's Bizarre Adventure (Europe 991015, NO CD) (jojoba)
 pgm2                                             5 parent games   e.g. DoDonPachi Dai-Ou-Jou Tamashii (V201, China) (ddpdojt)
-other                                            4 parent games   e.g. Eight Ball Action (DK conversion) (8ballact)
+d_parent.cpp                                     4 parent games   e.g. Eight Ball Action (DK conversion) (8ballact)
 megadrive                                        2 parent games   e.g. Super Bubble Bobble (Sun Mixing, Mega Drive clone hardware) (sbubsm)
 capcom/d_kenseim.h                               1 parent games   e.g. Ken Sei Mogura: Street Fighter II (Japan 940418, Ver 1.00) (kenseim)
