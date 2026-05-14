@@ -1,4 +1,4 @@
-from organizer import sourcefile_to_category
+from organizer import sourcefile_to_category, extract_platforms
 
 SAMPLE_XML = """<?xml version="1.0"?>
 <datafile>
@@ -45,3 +45,33 @@ def test_sourcefile_to_category_capcom_kenseim():
 
 def test_sourcefile_to_category_no_directory():
     assert sourcefile_to_category("d_parent.cpp") == "d_parent.cpp"
+
+
+def test_extract_platforms_counts_parent_games_only():
+    platforms = extract_platforms(SAMPLE_XML)
+    counts = dict(platforms)
+    assert counts["neogeo"] == 1     # mslug only (mslugv is a clone)
+    assert counts["d_cps1.cpp"] == 1
+    assert counts["d_cps2.cpp"] == 1
+    assert counts["pre90s"] == 1
+    assert counts["d_parent.cpp"] == 1
+
+
+def test_extract_platforms_sorted_by_count_descending():
+    platforms = extract_platforms(SAMPLE_XML)
+    counts = [count for _, count in platforms]
+    assert counts == sorted(counts, reverse=True)
+
+
+def test_extract_platforms_capcom_uses_driver_not_directory():
+    platforms = extract_platforms(SAMPLE_XML)
+    labels = [label for label, _ in platforms]
+    assert "capcom" not in labels
+    assert "d_cps1.cpp" in labels
+    assert "d_cps2.cpp" in labels
+
+
+def test_extract_platforms_returns_list_of_tuples():
+    platforms = extract_platforms(SAMPLE_XML)
+    assert isinstance(platforms, list)
+    assert all(isinstance(label, str) and isinstance(count, int) for label, count in platforms)

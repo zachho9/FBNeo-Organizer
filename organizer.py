@@ -34,6 +34,19 @@ def sourcefile_to_category(sourcefile: str) -> str:
     return directory
 
 
+def extract_platforms(xml_content: str) -> list[tuple[str, int]]:
+    """Parse -listxml and return (category, parent_game_count) pairs sorted by count desc."""
+    root = ET.fromstring(xml_content)
+    counts: dict[str, int] = {}
+    for game in root.findall("game"):
+        if game.get("cloneof"):
+            continue
+        sf = game.get("sourcefile", "")
+        category = sourcefile_to_category(sf)
+        counts[category] = counts.get(category, 0) + 1
+    return sorted(counts.items(), key=lambda x: -x[1])
+
+
 def find_exe(fbneo_dir: Path) -> Path | None:
     """Return path to FBNeo executable, preferring debug build. Returns None if not found."""
     for name in ("fbneo64d.exe", "fbneo64.exe"):
