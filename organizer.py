@@ -239,6 +239,15 @@ def main() -> None:
         print(f"[!] ROM directory not found: {arcade_path}")
         sys.exit(1)
 
+    while True:
+        print("\nSelect mode:")
+        print("  1. Platform filter  (keep NeoGeo, CPS1, CPS2, CPS3, PGM, PGM2)")
+        print("  2. Allowlist filter (keep specific games from allowlist.txt)")
+        choice = input("\nEnter choice [1/2]: ").strip()
+        if choice in ("1", "2"):
+            break
+        print("  [!] Please enter 1 or 2.")
+
     print("[1/3] Running fbneo -listxml ...")
     try:
         xml_content = run_listxml(exe)
@@ -247,13 +256,20 @@ def main() -> None:
         sys.exit(1)
 
     print("[2/3] Classifying games ...")
-    keep_set, game_to_platform, bios_names = parse_listxml(xml_content)
+    if choice == "1":
+        keep_set, game_to_platform, bios_names = parse_listxml(xml_content)
+        label_keys = list(PLATFORM_SOURCEFILES.keys())
+    else:
+        allowlist_path = Path(__file__).parent / "allowlist.txt"
+        parent_names = set(load_allowlist(allowlist_path))
+        keep_set, game_to_platform, bios_names = parse_allowlist(xml_content, parent_names)
+        label_keys = ["parent", "clone"]
 
-    mode = " (DRY RUN)" if args.dry_run else ""
-    print(f"[3/3] Organizing{mode} ...")
+    mode_str = " (DRY RUN)" if args.dry_run else ""
+    print(f"[3/3] Organizing{mode_str} ...")
     counts = organize(arcade_path, keep_set, game_to_platform, bios_names, args.dry_run)
 
-    print_summary(counts, args.dry_run)
+    print_summary(counts, label_keys, dry_run=args.dry_run)
 
 
 if __name__ == "__main__":
