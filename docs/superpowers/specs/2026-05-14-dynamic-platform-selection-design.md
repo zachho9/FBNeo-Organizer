@@ -5,11 +5,58 @@
 
 ## Overview
 
-Replace the hardcoded 6-platform filter in mode 1 with a dynamic system that extracts all available platforms from FBNeo's `-listxml` output and lets the user pick any combination via a numbered interactive prompt. No selection is saved — the user is asked every run.
+Replace the hardcoded 6-platform filter in mode 1 with a dynamic system that derives all available platform categories from FBNeo's `-listxml` output and lets the user pick any combination via a numbered interactive prompt. No selection is saved — the user is asked every run.
 
 ---
 
-## Section 1: Changes to `organizer.py`
+## Section 1: Category Labelling Rules
+
+Categories are derived from the `sourcefile` attribute of each game entry using this logic:
+
+```python
+def sourcefile_to_category(sourcefile: str) -> str:
+    parts = sourcefile.split('/')
+    if len(parts) == 1:
+        return sourcefile          # e.g. "d_parent.cpp"
+    directory, driver = parts[0], parts[1]
+    if directory == 'capcom':
+        return driver              # e.g. "d_cps1.cpp", "d_cps2.cpp", "d_kenseim.h"
+    return directory               # e.g. "neogeo", "sega", "taito"
+```
+
+**Capcom is the only directory expanded to driver-level.** All other directories are grouped as a single category by their directory name.
+
+The full resulting category list (23 entries, sorted by parent game count):
+
+| Category | Source | Parent games |
+|----------|--------|-------------|
+| `pre90s` | directory | 725 |
+| `pst90s` | directory | 578 |
+| `neogeo` | directory | 240 |
+| `taito` | directory | 213 |
+| `sega` | directory | 190 |
+| `dataeast` | directory | 121 |
+| `konami` | directory | 113 |
+| `galaxian` | directory | 72 |
+| `irem` | directory | 57 |
+| `d_cps2.cpp` | capcom driver | 41 |
+| `d_cps1.cpp` | capcom driver | 40 |
+| `pgm` | directory | 35 |
+| `cave` | directory | 34 |
+| `toaplan` | directory | 33 |
+| `nes` | directory | 32 |
+| `atari` | directory | 24 |
+| `midway` | directory | 22 |
+| `psikyo` | directory | 22 |
+| `cps3` | directory | 6 |
+| `pgm2` | directory | 5 |
+| `d_parent.cpp` | no directory | 4 |
+| `megadrive` | directory | 2 |
+| `d_kenseim.h` | capcom driver | 1 |
+
+---
+
+## Section 2: Changes to `organizer.py`
 
 **Remove:**
 - `PLATFORM_SOURCEFILES` constant
@@ -18,59 +65,49 @@ Replace the hardcoded 6-platform filter in mode 1 with a dynamic system that ext
 
 **Add:**
 
-1. **`extract_platforms(xml_content: str) -> list[tuple[str, int]]`** — parses `-listxml` output, groups games by their sourcefile directory prefix (e.g. `capcom/d_cps1.cpp` → `capcom`), returns a list of `(directory_name, game_count)` sorted by count descending. Excludes `d_parent.cpp` (meta-file, not a real platform).
+1. **`sourcefile_to_category(sourcefile: str) -> str`** — pure function, applies the labelling rules above.
 
-2. **`parse_platforms(xml_content: str, selected_dirs: set[str]) -> tuple[set[str], dict[str, str], set[str]]`** — same return shape as the removed `parse_listxml`. For each game, checks if `sourcefile.split('/')[0]` is in `selected_dirs`; labels kept games by directory name (e.g. `"capcom"`, `"neogeo"`); collects BIOS deps via `romof`.
+2. **`extract_platforms(xml_content: str) -> list[tuple[str, int]]`** — parses `-listxml`, applies `sourcefile_to_category` to each parent game, groups by category label, returns `(category, count)` pairs sorted by count descending.
+
+3. **`parse_platforms(xml_content: str, selected_categories: set[str]) -> tuple[set[str], dict[str, str], set[str]]`** — same return shape as the removed `parse_listxml`. For each game, checks if `sourcefile_to_category(sourcefile)` is in `selected_categories`; labels kept games by category name; collects BIOS deps via `romof`.
 
 **Modify:**
-- `main` mode 1 — calls `extract_platforms`, displays numbered list, reads user selection, calls `parse_platforms` with selected directory names. Passes selected directory names as `label_keys` to `print_summary`.
+- `main` mode 1 — calls `extract_platforms`, displays numbered list, reads user input, calls `parse_platforms` with selected category names. Passes selected category names as `label_keys` to `print_summary`.
 
 **Tests:**
 - Delete `tests/test_classifier.py`
-- Create `tests/test_platforms.py` with tests for `extract_platforms` and `parse_platforms`
+- Create `tests/test_platforms.py` with tests for `sourcefile_to_category`, `extract_platforms`, and `parse_platforms`
 
 ---
 
-## Section 2: Platform Selection UX
+## Section 3: Platform Selection UX
 
-When the user picks mode 1, the tool displays:
+When the user picks mode 1, the tool displays the list dynamically from `extract_platforms`:
 
 ```
 Available platforms:
-   1. pre90s    (2,091 games)
-   2. pst90s    (1,403 games)
-   3. capcom      (800 games)
-   4. neogeo      (673 games)
-   5. sega        (639 games)
-   6. taito       (621 games)
-   7. konami      (407 games)
-   8. dataeast    (335 games)
-   9. galaxian    (295 games)
-  10. pgm         (210 games)
-  11. irem        (190 games)
-  12. toaplan     (143 games)
-  13. midway      (136 games)
-  14. cave        (107 games)
-  15. atari        (90 games)
-  16. cps3         (60 games)
-  17. psikyo       (40 games)
-  18. pgm2         (36 games)
-  19. nes          (32 games)
-  20. megadrive     (2 games)
+   1. pre90s        (725 games)
+   2. pst90s        (578 games)
+   3. neogeo        (240 games)
+   4. taito         (213 games)
+   5. sega          (190 games)
+   ...
+  22. megadrive       (2 games)
+  23. d_kenseim.h     (1 game)
 
 Enter platform numbers to keep (e.g. 1,3,5):
 ```
 
-The user types comma-separated numbers (e.g. `4,6,10`). Summary uses selected directory names as labels:
+User types comma-separated numbers. Summary uses selected category names as labels:
 
 ```
-Kept:  883 files  (neogeo: 673, taito: 621)
+Kept:  273 files  (neogeo: 240, taito: 213)
 Moved: 7,428 files -> arcade\gone\
 ```
 
 ---
 
-## Section 3: Error Handling
+## Section 4: Error Handling
 
 | Condition | Behavior |
 |-----------|----------|
