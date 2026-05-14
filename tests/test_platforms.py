@@ -1,4 +1,4 @@
-from organizer import sourcefile_to_category, extract_platforms
+from organizer import sourcefile_to_category, extract_platforms, parse_platforms
 
 SAMPLE_XML = """<?xml version="1.0"?>
 <datafile>
@@ -75,3 +75,50 @@ def test_extract_platforms_returns_list_of_tuples():
     platforms = extract_platforms(SAMPLE_XML)
     assert isinstance(platforms, list)
     assert all(isinstance(label, str) and isinstance(count, int) for label, count in platforms)
+
+
+def test_parse_platforms_keeps_selected_category():
+    keep_set, _, _ = parse_platforms(SAMPLE_XML, {"neogeo"})
+    assert "mslug" in keep_set
+
+
+def test_parse_platforms_keeps_clones_of_selected():
+    keep_set, _, _ = parse_platforms(SAMPLE_XML, {"neogeo"})
+    assert "mslugv" in keep_set  # clone also kept — same sourcefile category
+
+
+def test_parse_platforms_excludes_unselected():
+    keep_set, _, _ = parse_platforms(SAMPLE_XML, {"neogeo"})
+    assert "sf2" not in keep_set
+    assert "pacman" not in keep_set
+
+
+def test_parse_platforms_labels_game_by_category():
+    _, game_to_label, _ = parse_platforms(SAMPLE_XML, {"neogeo", "d_cps1.cpp"})
+    assert game_to_label["mslug"] == "neogeo"
+    assert game_to_label["sf2"] == "d_cps1.cpp"
+
+
+def test_parse_platforms_capcom_driver_selection():
+    keep_set, game_to_label, _ = parse_platforms(SAMPLE_XML, {"d_cps1.cpp"})
+    assert "sf2" in keep_set
+    assert "ssf2" not in keep_set
+    assert game_to_label["sf2"] == "d_cps1.cpp"
+
+
+def test_parse_platforms_bios_from_romof():
+    keep_set, _, bios_names = parse_platforms(SAMPLE_XML, {"neogeo"})
+    assert "neogeo" in keep_set
+    assert "neogeo" in bios_names
+
+
+def test_parse_platforms_bios_not_in_game_to_label():
+    _, game_to_label, bios_names = parse_platforms(SAMPLE_XML, {"neogeo"})
+    assert "neogeo" not in game_to_label
+    assert "neogeo" in bios_names
+
+
+def test_parse_platforms_d_parent_cpp_selection():
+    keep_set, _, _ = parse_platforms(SAMPLE_XML, {"d_parent.cpp"})
+    assert "orphan" in keep_set
+    assert "mslug" not in keep_set
