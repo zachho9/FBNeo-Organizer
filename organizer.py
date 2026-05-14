@@ -134,7 +134,7 @@ def organize(
     if not dry_run:
         gone_path.mkdir(exist_ok=True)
 
-    counts: dict[str, int] = {p: 0 for p in PLATFORM_SOURCEFILES}
+    counts: dict[str, int] = {k: 0 for k in set(game_to_platform.values())}
     counts.update({"BIOS": 0, "moved": 0, "skipped_duplicate": 0, "move_errors": 0})
 
     for zip_path in sorted(arcade_path.glob("*.zip")):
@@ -195,9 +195,9 @@ def prompt_and_validate(config_path: Path) -> Path:
         return fbneo_dir
 
 
-def print_summary(counts: dict[str, int], dry_run: bool) -> None:
-    kept_total = sum(counts[p] for p in PLATFORM_SOURCEFILES) + counts["BIOS"]
-    parts = [f"{p}: {counts[p]}" for p in PLATFORM_SOURCEFILES if counts[p] > 0]
+def print_summary(counts: dict[str, int], label_keys: list[str], dry_run: bool) -> None:
+    kept_total = sum(counts.get(k, 0) for k in label_keys) + counts["BIOS"]
+    parts = [f"{k}: {counts[k]}" for k in label_keys if counts.get(k, 0) > 0]
     if counts["BIOS"] > 0:
         parts.append(f"BIOS: {counts['BIOS']}")
     action = "Would move" if dry_run else "Moved"
