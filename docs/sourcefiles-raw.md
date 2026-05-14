@@ -1,5 +1,5 @@
 # FBNeo Sourcefiles (parent ROMs only, original form)
-# Total unique sourcefiles: 633
+# Total unique sourcefiles: 633 (parents) + 5 (clone-only, appended at bottom)
 
 atari/d_akkaarrh.cpp                             1 games   e.g. Akka Arrh (prototype) (akkaarrh)
 atari/d_arcadecl.cpp                             2 games   e.g. Arcade Classics (prototype) (arcadecl)
@@ -634,3 +634,10 @@ toaplan/d_truxton2.cpp                           1 games   e.g. Truxton II / Tat
 toaplan/d_twincobr.cpp                           3 games   e.g. Flying Shark (World) (fshark)
 toaplan/d_vfive.cpp                              1 games   e.g. Grind Stormer (grindstm)
 toaplan/d_wardner.cpp                            1 games   e.g. Wardner (World) (wardner)
+
+# --- Clone-only sourcefiles (no parent ROM, 5 total) ---
+pre90s/d_headonb.cpp                             1 clones   e.g. Head On (bootleg on dedicated hardware) (headonb)
+pre90s/d_wc90b.cpp                               6 clones   e.g. Euro League (Italian hack of Tecmo World Cup '90, set 1) (twcup90b1)
+pst90s/d_bestleag.cpp                            2 clones   e.g. Best League (bootleg of Big Striker, Italian Serie A) (bestleag)
+pst90s/d_bigstrkb.cpp                            2 clones   e.g. Big Striker (bootleg w/Italian teams) (bigstrkba)
+pst90s/d_bloodbro_ms.cpp                         1 clones   e.g. Blood Bros. (Modular System) (bloodbrom)
