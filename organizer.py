@@ -25,3 +25,31 @@ def find_exe(fbneo_dir: Path) -> Path | None:
         if exe.exists():
             return exe
     return None
+
+
+def parse_listxml(xml_content: str) -> tuple[set[str], dict[str, str], set[str]]:
+    """Parse FBNeo -listxml XML output.
+
+    Returns:
+        keep_names: ROM stems to keep (target platform games + BIOS deps)
+        game_to_platform: game name -> platform label (e.g. "NeoGeo")
+        bios_names: BIOS ROM names added via romof dependencies
+    """
+    root = ET.fromstring(xml_content)
+    game_to_platform: dict[str, str] = {}
+    romof_deps: set[str] = set()
+
+    for game in root.findall("game"):
+        name = game.get("name", "")
+        sourcefile = game.get("sourcefile", "")
+        romof = game.get("romof", "")
+
+        if sourcefile in SOURCEFILE_TO_PLATFORM:
+            game_to_platform[name] = SOURCEFILE_TO_PLATFORM[sourcefile]
+            if romof:
+                romof_deps.add(romof)
+
+    bios_names = romof_deps - game_to_platform.keys()
+    keep_names = set(game_to_platform.keys()) | romof_deps
+
+    return keep_names, game_to_platform, bios_names
