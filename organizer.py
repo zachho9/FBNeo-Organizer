@@ -66,3 +66,49 @@ def load_config(config_path: Path) -> dict:
 def save_config(config_path: Path, fbneo_dir: str) -> None:
     """Write FBNeo directory path to config file."""
     config_path.write_text(f"fbneo_dir = '{fbneo_dir}'\n", encoding="utf-8")
+
+
+def organize(
+    arcade_path: Path,
+    keep_set: set[str],
+    game_to_platform: dict[str, str],
+    bios_names: set[str],
+    dry_run: bool,
+) -> dict[str, int]:
+    """Move non-kept ZIP files to arcade/gone/. Returns summary counts."""
+    gone_path = arcade_path / "gone"
+
+    if not dry_run:
+        gone_path.mkdir(exist_ok=True)
+
+    counts: dict[str, int] = {p: 0 for p in PLATFORM_SOURCEFILES}
+    counts.update({"BIOS": 0, "moved": 0, "skipped_duplicate": 0, "move_errors": 0})
+
+    for zip_path in sorted(arcade_path.glob("*.zip")):
+        stem = zip_path.stem
+
+        if stem in keep_set:
+            if stem in bios_names:
+                counts["BIOS"] += 1
+            elif stem in game_to_platform:
+                counts[game_to_platform[stem]] += 1
+            continue
+
+        dest = gone_path / zip_path.name
+        if dest.exists():
+            print(f"  [!] Skipping (already in gone\\): {zip_path.name}")
+            counts["skipped_duplicate"] += 1
+            continue
+
+        if dry_run:
+            print(f"  [DRY RUN] Would move: {zip_path.name}")
+            counts["moved"] += 1
+        else:
+            try:
+                shutil.move(str(zip_path), str(dest))
+                counts["moved"] += 1
+            except OSError as e:
+                print(f"  [!] Failed to move {zip_path.name}: {e}")
+                counts["move_errors"] += 1
+
+    return counts
