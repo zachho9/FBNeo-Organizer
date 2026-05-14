@@ -261,7 +261,7 @@ def main() -> None:
 
     while True:
         print("\nSelect mode:")
-        print("  1. Platform filter  (keep NeoGeo, CPS1, CPS2, CPS3, PGM, PGM2)")
+        print("  1. Platform filter  (choose from all available platforms)")
         print("  2. Allowlist filter (keep specific games from allowlist.txt)")
         choice = input("\nEnter choice [1/2]: ").strip()
         if choice in ("1", "2"):
@@ -277,8 +277,22 @@ def main() -> None:
 
     print("[2/3] Classifying games ...")
     if choice == "1":
-        keep_set, game_to_platform, bios_names = parse_listxml(xml_content)
-        label_keys = list(PLATFORM_SOURCEFILES.keys())
+        platforms = extract_platforms(xml_content)
+        print("\nAvailable platforms:")
+        for i, (category, count) in enumerate(platforms, 1):
+            print(f"  {i:>3}. {category:<22s} ({count:,} games)")
+        while True:
+            raw = input("\nEnter platform numbers to keep (e.g. 1,3,5): ").strip()
+            try:
+                indices = [int(x.strip()) for x in raw.split(",") if x.strip()]
+                if not indices or any(i < 1 or i > len(platforms) for i in indices):
+                    raise ValueError
+                break
+            except ValueError:
+                print("  [!] Enter valid numbers from the list, separated by commas.")
+        selected_categories = {platforms[i - 1][0] for i in indices}
+        label_keys = [platforms[i - 1][0] for i in sorted(set(indices))]
+        keep_set, game_to_platform, bios_names = parse_platforms(xml_content, selected_categories)
     else:
         allowlist_path = Path(__file__).parent / "allowlist.txt"
         parent_names = set(load_allowlist(allowlist_path))
