@@ -112,3 +112,96 @@ def organize(
                 counts["move_errors"] += 1
 
     return counts
+
+
+def run_listxml(exe_path: Path) -> str:
+    """Run FBNeo -listxml and return XML string. Raises RuntimeError on failure."""
+    result = subprocess.run(
+        [str(exe_path), "-listxml"],
+        capture_output=True,
+        timeout=30,
+    )
+    if result.returncode != 0 or not result.stdout:
+        raise RuntimeError(
+            f"-listxml failed (returncode={result.returncode}). "
+            "Check that your FBNeo executable is working."
+        )
+    return result.stdout.decode("utf-8", errors="ignore")
+
+
+def prompt_and_validate(config_path: Path) -> Path:
+    """Prompt for FBNeo directory, validate exe exists, save to config, return Path."""
+    while True:
+        raw = input("Enter your FBNeo directory path: ").strip().strip('"')
+        fbneo_dir = Path(raw)
+        if find_exe(fbneo_dir) is None:
+            print(f"  [!] No fbneo64d.exe or fbneo64.exe found in {fbneo_dir}. Try again.")
+            continue
+        save_config(config_path, str(fbneo_dir))
+        print("  [✓] Saved to config.toml")
+        return fbneo_dir
+
+
+def print_summary(counts: dict[str, int], dry_run: bool) -> None:
+    kept_total = sum(counts[p] for p in PLATFORM_SOURCEFILES) + counts["BIOS"]
+    parts = [f"{p}: {counts[p]}" for p in PLATFORM_SOURCEFILES if counts[p] > 0]
+    if counts["BIOS"] > 0:
+        parts.append(f"BIOS: {counts['BIOS']}")
+    action = "Would move" if dry_run else "Moved"
+    print()
+    print(f"Kept:  {kept_total:,} files  ({', '.join(parts)})")
+    print(f"{action}: {counts['moved']:,} files -> arcade\\gone\\")
+    if counts["skipped_duplicate"] > 0:
+        print(f"Skipped (duplicates in gone\\): {counts['skipped_duplicate']}")
+    if counts["move_errors"] > 0:
+        print(f"Move errors: {counts['move_errors']}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="FBNeo ROM Organizer")
+    parser.add_argument("--dry-run", action="store_true", help="Preview without moving files")
+    parser.add_argument("--reset", action="store_true", help="Re-prompt for FBNeo directory")
+    args = parser.parse_args()
+
+    config_path = Path(__file__).parent / "config.toml"
+
+    if args.reset and config_path.exists():
+        config_path.unlink()
+        print("[i] Config cleared.")
+
+    config = load_config(config_path)
+
+    if "fbneo_dir" not in config:
+        fbneo_dir = prompt_and_validate(config_path)
+    else:
+        fbneo_dir = Path(config["fbneo_dir"])
+        if find_exe(fbneo_dir) is None:
+            print(f"[!] FBNeo executable not found in {fbneo_dir}.")
+            fbneo_dir = prompt_and_validate(config_path)
+
+    exe = find_exe(fbneo_dir)
+    arcade_path = fbneo_dir / "roms" / "arcade"
+
+    if not arcade_path.exists():
+        print(f"[!] ROM directory not found: {arcade_path}")
+        sys.exit(1)
+
+    print("[1/3] Running fbneo -listxml ...")
+    try:
+        xml_content = run_listxml(exe)
+    except (RuntimeError, subprocess.TimeoutExpired) as e:
+        print(f"[!] {e}")
+        sys.exit(1)
+
+    print("[2/3] Classifying games ...")
+    keep_set, game_to_platform, bios_names = parse_listxml(xml_content)
+
+    mode = " (DRY RUN)" if args.dry_run else ""
+    print(f"[3/3] Organizing{mode} ...")
+    counts = organize(arcade_path, keep_set, game_to_platform, bios_names, args.dry_run)
+
+    print_summary(counts, args.dry_run)
+
+
+if __name__ == "__main__":
+    main()
