@@ -68,6 +68,22 @@ def save_config(config_path: Path, fbneo_dir: str) -> None:
     config_path.write_text(f"fbneo_dir = '{fbneo_dir}'\n", encoding="utf-8")
 
 
+def load_allowlist(path: Path) -> list[str]:
+    """Read allowlist.txt and return ROM names, stripping comments and blank lines."""
+    if not path.exists():
+        print(f"[!] allowlist.txt not found: {path}")
+        sys.exit(1)
+    names = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.split("#")[0].strip()
+        if line:
+            names.append(line)
+    if not names:
+        print("[!] allowlist.txt is empty — nothing to keep.")
+        sys.exit(1)
+    return names
+
+
 def organize(
     arcade_path: Path,
     keep_set: set[str],
