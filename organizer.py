@@ -33,7 +33,7 @@ def extract_platforms(xml_content: str) -> list[tuple[str, int]]:
         sf = game.get("sourcefile", "")
         category = sourcefile_to_category(sf)
         counts[category] = counts.get(category, 0) + 1
-    return sorted(counts.items(), key=lambda x: -x[1])
+    return sorted(counts.items(), key=lambda x: x[0].lower())
 
 
 def parse_platforms(xml_content: str, selected_categories: set[str]) -> tuple[set[str], dict[str, str], set[str]]:

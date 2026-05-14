@@ -57,10 +57,10 @@ def test_extract_platforms_counts_parent_games_only():
     assert counts["d_parent.cpp"] == 1
 
 
-def test_extract_platforms_sorted_by_count_descending():
+def test_extract_platforms_sorted_alphabetically():
     platforms = extract_platforms(SAMPLE_XML)
-    counts = [count for _, count in platforms]
-    assert counts == sorted(counts, reverse=True)
+    labels = [label for label, _ in platforms]
+    assert labels == sorted(labels, key=str.lower)
 
 
 def test_extract_platforms_capcom_uses_driver_not_directory():
