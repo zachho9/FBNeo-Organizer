@@ -18,6 +18,22 @@ PLATFORM_SOURCEFILES: dict[str, str] = {
 SOURCEFILE_TO_PLATFORM: dict[str, str] = {v: k for k, v in PLATFORM_SOURCEFILES.items()}
 
 
+def sourcefile_to_category(sourcefile: str) -> str:
+    """Derive platform category label from a sourcefile path.
+
+    Capcom games use the driver filename (e.g. 'd_cps1.cpp').
+    All other games use the directory name (e.g. 'neogeo', 'sega').
+    Files with no directory (e.g. 'd_parent.cpp') return as-is.
+    """
+    parts = sourcefile.split("/")
+    if len(parts) == 1:
+        return sourcefile
+    directory, driver = parts[0], parts[1]
+    if directory == "capcom":
+        return driver
+    return directory
+
+
 def find_exe(fbneo_dir: Path) -> Path | None:
     """Return path to FBNeo executable, preferring debug build. Returns None if not found."""
     for name in ("fbneo64d.exe", "fbneo64.exe"):
