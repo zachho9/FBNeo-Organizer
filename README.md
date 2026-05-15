@@ -6,7 +6,7 @@ Two ways to use it: a portable GUI app (no setup required) or a Python CLI for p
 
 ## GUI App — No Setup Required
 
-Download `FBNeo-Organizer.exe` from the [Releases](../../releases) page and double-click it. No Python, no installation.
+Download `FBNeo-Organizer.exe` from [Releases](../../releases).
 
 **First launch:** opens on the Settings tab — point it to your FBNeo folder and it validates the path automatically.
 
