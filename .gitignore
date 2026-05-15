@@ -6,3 +6,6 @@ __pycache__/
 .pytest_cache/
 .claude/
 .superpowers/
+build/
+dist/
+*.spec.bak
