@@ -115,3 +115,12 @@ def test_parse_allowlist_warns_unknown(capsys):
     captured = capsys.readouterr()
     assert "zzznotreal" in captured.out
     assert "not found" in captured.out
+
+
+def test_parse_allowlist_warns_unknown_list(capsys):
+    warnings = []
+    parse_allowlist(SAMPLE_XML, {"zzznotreal"}, warnings=warnings)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert any("zzznotreal" in w for w in warnings)
+    assert any("not found" in w for w in warnings)
