@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FBNeo Organizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <nav id="sidebar">
+      <div id="nav-links">
+        <button class="nav-btn active" data-tab="platforms" onclick="switchTab('platforms')">Platforms</button>
+        <button class="nav-btn" data-tab="allowlist" onclick="switchTab('allowlist')">Allowlist</button>
+        <button class="nav-btn" data-tab="settings" onclick="switchTab('settings')">Settings</button>
+      </div>
+      <div id="sidebar-footer">
+        <label>
+          <input type="checkbox" id="dry-run"> Dry run
+        </label>
+        <button id="run-btn" disabled>Run</button>
+      </div>
+    </nav>
+
+    <main id="content">
+
+      <!-- Platforms tab -->
+      <section id="tab-platforms" class="tab-panel">
+        <div id="platforms-loading" class="spinner-wrap">
+          <div class="spinner"></div>
+          <p>Loading games...</p>
+        </div>
+        <div id="platforms-error" class="error-msg hidden"></div>
+        <div id="platforms-list" class="hidden"></div>
+      </section>
+
+      <!-- Allowlist tab -->
+      <section id="tab-allowlist" class="tab-panel hidden">
+        <div id="allowlist-tabs">
+          <button class="inner-tab-btn active" data-inner="browse" onclick="switchInnerTab('browse')">Browse games</button>
+          <button class="inner-tab-btn" data-inner="mylist" onclick="switchInnerTab('mylist')">My list</button>
+        </div>
+        <div id="inner-browse">
+          <input type="text" id="game-search" placeholder="Search by title or short name...">
+          <div id="game-loading" class="spinner-wrap hidden">
+            <div class="spinner"></div>
+          </div>
+          <div id="game-error" class="error-msg hidden"></div>
+          <div id="game-list"></div>
+        </div>
+        <div id="inner-mylist" class="hidden">
+          <div id="allowlist-items"></div>
+          <p id="allowlist-empty" class="hint">No games yet. Go to Browse games to add some.</p>
+        </div>
+      </section>
+
+      <!-- Settings tab -->
+      <section id="tab-settings" class="tab-panel hidden">
+        <div class="setting-row">
+          <label>FBNeo directory</label>
+          <div class="path-row">
+            <input type="text" id="fbneo-path" placeholder="e.g. D:\EMU\FBNeo">
+            <button id="browse-btn">Browse</button>
+          </div>
+          <div id="path-status"></div>
+        </div>
+        <div id="derived-paths" class="hidden">
+          <p class="hint">ROMs: <span id="rom-path"></span></p>
+          <p class="hint">Gone: <span id="gone-path"></span></p>
+        </div>
+      </section>
+
+      <!-- Results panel -->
+      <section id="tab-results" class="tab-panel hidden">
+        <div id="results-loading" class="spinner-wrap">
+          <div class="spinner"></div>
+          <p>Organising files...</p>
+        </div>
+        <div id="results-content" class="hidden">
+          <div id="results-summary"></div>
+          <div id="results-warnings"></div>
+          <button id="back-btn">&#8592; Back</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
