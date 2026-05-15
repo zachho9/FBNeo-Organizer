@@ -6,6 +6,7 @@ Organizes your FBNeo arcade ROM collection by moving unwanted games to an `arcad
 
 - Python 3.11+ managed with [uv](https://github.com/astral-sh/uv)
 - FBNeo installed (requires `fbneo64d.exe` or `fbneo64.exe`)
+- FBNeo full split arcade set
 
 ## Setup
 
