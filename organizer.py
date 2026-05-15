@@ -24,7 +24,7 @@ def sourcefile_to_category(sourcefile: str) -> str:
 
 
 def extract_platforms(xml_content: str) -> list[tuple[str, int]]:
-    """Parse -listxml and return (category, parent_game_count) pairs sorted by count desc."""
+    """Parse -listxml and return (category, parent_game_count) pairs sorted alphabetically."""
     root = ET.fromstring(xml_content)
     counts: dict[str, int] = {}
     for game in root.findall("game"):
