@@ -1,0 +1,332 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#app { display: flex; height: 100vh; }
+
+/* Sidebar */
+#sidebar {
+    width: 140px;
+    background: #0f3460;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 8px;
+    flex-shrink: 0;
+}
+
+#nav-links { display: flex; flex-direction: column; gap: 4px; }
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    padding: 8px 12px;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.nav-btn:hover { background: rgba(255,255,255,0.08); color: #eee; }
+.nav-btn.active { background: #e94560; color: white; }
+
+#sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+
+#sidebar-footer label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #aaa;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+#run-btn {
+    width: 100%;
+    padding: 8px;
+    background: #e94560;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+#run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+#run-btn:not(:disabled):hover { background: #c73652; }
+
+/* Main content */
+#content { flex: 1; background: #16213e; overflow-y: auto; padding: 20px; }
+.tab-panel { min-height: 100%; }
+.hidden { display: none !important; }
+
+/* Spinner */
+.spinner-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 12px;
+    color: #888;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #333;
+    border-top-color: #e94560;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Error */
+.error-msg {
+    background: rgba(231,76,60,0.15);
+    border: 1px solid rgba(231,76,60,0.4);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: #e74c3c;
+    margin-bottom: 12px;
+}
+
+/* Platforms */
+#platforms-list { display: flex; flex-direction: column; gap: 2px; }
+
+.platform-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.platform-item:hover { background: rgba(255,255,255,0.05); }
+.platform-item input[type="checkbox"] { accent-color: #e94560; width: 15px; height: 15px; cursor: pointer; }
+.platform-name { flex: 1; font-size: 14px; }
+.platform-count { color: #666; font-size: 12px; }
+
+/* Inner tabs */
+#allowlist-tabs {
+    display: flex;
+    gap: 2px;
+    background: #0f3460;
+    border-radius: 4px;
+    padding: 3px;
+    margin-bottom: 12px;
+}
+
+.inner-tab-btn {
+    flex: 1;
+    padding: 5px;
+    background: none;
+    border: none;
+    color: #aaa;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.inner-tab-btn.active { background: #e94560; color: white; }
+
+/* Game browser */
+#game-search {
+    width: 100%;
+    padding: 8px 12px;
+    background: #1a1a2e;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #eee;
+    font-size: 14px;
+    margin-bottom: 8px;
+    outline: none;
+}
+
+#game-search:focus { border-color: #e94560; }
+
+#game-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 3px;
+    background: #1a1a2e;
+}
+
+.game-item.in-list {
+    background: rgba(46,204,113,0.08);
+    border: 1px solid rgba(46,204,113,0.2);
+}
+
+.game-title { flex: 1; font-size: 13px; }
+.game-short { color: #666; font-size: 11px; font-family: monospace; min-width: 80px; }
+.game-added { color: #2ecc71; font-size: 13px; min-width: 24px; text-align: center; }
+
+.add-btn {
+    background: #0f3460;
+    border: none;
+    color: #2ecc71;
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: background 0.1s;
+}
+
+.add-btn:hover { background: #1a4a8a; }
+
+/* My list */
+#allowlist-items { display: flex; flex-direction: column; gap: 4px; }
+
+.allowlist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: #1a1a2e;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: monospace;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #e94560;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+}
+
+.remove-btn:hover { color: #ff6b6b; }
+.hint { color: #666; font-size: 12px; padding: 8px 0; }
+
+/* Settings */
+.setting-row { margin-bottom: 16px; }
+
+.setting-row > label {
+    display: block;
+    color: #aaa;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.path-row { display: flex; gap: 8px; }
+
+.path-row input {
+    flex: 1;
+    padding: 8px 12px;
+    background: #1a1a2e;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #eee;
+    font-size: 13px;
+    outline: none;
+}
+
+.path-row input:focus { border-color: #e94560; }
+
+#browse-btn {
+    padding: 8px 14px;
+    background: #0f3460;
+    border: none;
+    color: #eee;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+#browse-btn:hover { background: #1a4a8a; }
+#path-status { margin-top: 6px; font-size: 12px; }
+.status-ok { color: #2ecc71; }
+.status-error { color: #e74c3c; }
+
+#derived-paths {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #1a1a2e;
+    border-radius: 4px;
+}
+
+#derived-paths .hint { font-family: monospace; font-size: 11px; }
+
+/* Results */
+.result-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #222;
+}
+
+.result-row:last-child { border-bottom: none; }
+.result-label { color: #aaa; font-size: 13px; min-width: 70px; }
+.result-value { font-size: 18px; font-weight: 600; }
+.result-detail { color: #888; font-size: 12px; }
+.result-row.result-error .result-value { color: #e74c3c; }
+#results-summary { margin-bottom: 20px; }
+
+.warnings-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.warnings-list li {
+    font-size: 12px;
+    color: #e67e22;
+    padding: 4px 8px;
+    background: rgba(230,126,34,0.1);
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+h3 {
+    font-size: 13px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+#back-btn {
+    margin-top: 20px;
+    padding: 8px 16px;
+    background: #0f3460;
+    border: none;
+    color: #eee;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+#back-btn:hover { background: #1a4a8a; }
