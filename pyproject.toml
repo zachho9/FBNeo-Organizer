@@ -2,10 +2,15 @@
 name = "fbneo-organizer"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pywebview>=6.2.1",
+]
 
 [dependency-groups]
-dev = ["pytest>=8.0"]
+dev = [
+    "pyinstaller>=6.20.0",
+    "pytest>=8.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
