@@ -24,7 +24,13 @@ jobs:
       - name: Build exe
         run: uv run pyinstaller FBNeo-Organizer.spec
 
+      - name: Package release
+        run: |
+          $v = '${{ github.ref_name }}'
+          Rename-Item dist\FBNeo-Organizer.exe "FBNeo-Organizer-$v.exe"
+          Compress-Archive "dist\FBNeo-Organizer-$v.exe" "dist\FBNeo-Organizer-$v.zip"
+
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/FBNeo-Organizer.exe
+          files: dist/FBNeo-Organizer-${{ github.ref_name }}.zip
