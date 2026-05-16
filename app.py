@@ -1,3 +1,4 @@
+import ctypes
 import multiprocessing
 import sys
 import xml.etree.ElementTree as ET
@@ -137,14 +138,27 @@ class Api:
         }
 
 
+def _window_size() -> tuple[int, int]:
+    user32 = ctypes.windll.user32
+    sw = user32.GetSystemMetrics(0)
+    sh = user32.GetSystemMetrics(1)
+    try:
+        dpi = user32.GetDpiForSystem()
+        scale = dpi / 96.0
+    except Exception:
+        scale = 1.0
+    return int(sw / scale * 0.72), int(sh / scale * 0.78)
+
+
 def main() -> None:
     api = Api()
+    w, h = _window_size()
     webview.create_window(
         "FBNeo Organizer",
         str(WEB_DIR / "index.html"),
         js_api=api,
-        width=800,
-        height=600,
+        width=w,
+        height=h,
         min_size=(640, 480),
     )
     webview.start()
