@@ -1,5 +1,7 @@
 # FBNeo Arcade ROM Organizer
 
+<img width="1317" height="841" alt="fbneo-org" src="https://github.com/user-attachments/assets/52933969-dcef-402c-a607-1529ef7fb13e" />
+
 Organizes your FBNeo arcade ROM collection by moving unwanted games to an `arcade\gone\` subfolder, keeping only the ones you care about.
 
 Two ways to use it: a portable GUI app (no setup required) or a Python CLI for power users.
